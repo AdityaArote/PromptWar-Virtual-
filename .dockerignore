@@ -1,0 +1,39 @@
+# Git
+.git
+.gitignore
+
+# Next.js build output (rebuilt inside Docker)
+.next
+out
+
+# Dependencies (reinstalled inside Docker)
+node_modules
+
+# Environment files (injected at runtime via Cloud Run secrets)
+.env
+.env.local
+.env.production
+.env.development
+
+# Dev tools
+.vscode
+.cursor
+.claude
+.code-review-graph
+.opencode.json
+.mcp.json
+
+# Debug & planning
+debug
+.planning
+
+# ML service (separate container)
+ml
+
+# Scripts (not needed at runtime)
+scripts
+
+# Misc
+npm-debug.log*
+*.tsbuildinfo
+README.md
