@@ -1,0 +1,64 @@
+name: ML Model Retrain
+
+on:
+  schedule:
+    - cron: '0 3 * * 1' # Weekly on Monday at 3 AM UTC
+  push:
+    paths:
+      - 'ml/**'
+  workflow_dispatch:
+
+env:
+  PYTHON_VERSION: '3.11'
+
+jobs:
+  retrain:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: ${{ env.PYTHON_VERSION }}
+          cache: 'pip'
+          cache-dependency-path: ml/requirements.txt
+
+      - name: Install dependencies
+        run: pip install -r ml/requirements.txt
+
+      - name: Train model
+        working-directory: ml
+        env:
+          NEXT_PUBLIC_SUPABASE_URL: ${{ secrets.NEXT_PUBLIC_SUPABASE_URL }}
+          SUPABASE_SERVICE_ROLE_KEY: ${{ secrets.SUPABASE_SERVICE_ROLE_KEY }}
+        run: python train.py --output-dir model
+
+      - name: Evaluate model
+        working-directory: ml
+        run: |
+          python -c "
+          import json
+          with open('model/metadata.json') as f:
+              meta = json.load(f)
+          metrics = meta['metrics']
+          print(f'MAE: {metrics[\"mae\"]:.2f}')
+          print(f'RMSE: {metrics[\"rmse\"]:.2f}')
+          # Fail if RMSE > 10 minutes
+          assert metrics['rmse'] < 10, f'RMSE {metrics[\"rmse\"]} exceeds threshold of 10'
+          "
+
+      - name: Upload model artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: wait-time-model
+          path: ml/model/
+          retention-days: 30
+
+      - name: Commit model (if improved)
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "github-actions[bot]@users.noreply.github.com"
+          git add ml/model/
+          git diff --staged --quiet || git commit -m "chore(ml): retrain wait-time model [skip ci]"
+          git push || echo "Nothing to push"

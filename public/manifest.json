@@ -1,0 +1,25 @@
+{
+  "name": "FlowZone - Crowd Intelligence",
+  "short_name": "FlowZone",
+  "description": "Real-time crowd intelligence for sporting venues. Navigate like a VIP.",
+  "start_url": "/",
+  "display": "standalone",
+  "background_color": "#0a0a0b",
+  "theme_color": "#00d4ff",
+  "orientation": "portrait-primary",
+  "icons": [
+    {
+      "src": "/icon-192x192.png",
+      "sizes": "192x192",
+      "type": "image/png",
+      "purpose": "any maskable"
+    },
+    {
+      "src": "/icon-512x512.png",
+      "sizes": "512x512",
+      "type": "image/png",
+      "purpose": "any maskable"
+    }
+  ],
+  "categories": ["sports", "utilities", "navigation"]
+}
